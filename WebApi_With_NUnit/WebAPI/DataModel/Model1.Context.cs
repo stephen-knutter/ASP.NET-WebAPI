@@ -25,8 +25,8 @@ namespace DataModel
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<Token> Tokens { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
     }
 }

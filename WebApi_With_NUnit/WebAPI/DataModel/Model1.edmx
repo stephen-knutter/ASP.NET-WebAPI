@@ -4,13 +4,13 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="WebApiDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="Products">
+    <Schema Namespace="WebApiDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Product">
           <Key>
             <PropertyRef Name="ProductId" />
           </Key>
-          <Property Name="ProductId" Type="int" Nullable="false" />
-          <Property Name="ProductName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ProductId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProductName" Type="varchar(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="Tokens">
           <Key>
@@ -44,7 +44,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="WebApiDbModelStoreContainer">
-          <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Product" EntityType="Self.Product" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tokens" EntityType="Self.Tokens" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Tokens_ToUsers" Association="Self.FK_Tokens_ToUsers">
@@ -52,18 +52,10 @@
             <End Role="Tokens" EntitySet="Tokens" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="WebApiDbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Product">
-          <Key>
-            <PropertyRef Name="ProductId" />
-          </Key>
-          <Property Name="ProductId" Type="Int32" Nullable="false" />
-          <Property Name="ProductName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-        </EntityType>
         <EntityType Name="Token">
           <Key>
             <PropertyRef Name="TokenId" />
@@ -98,28 +90,27 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="WebApiDbEntities1" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Products" EntityType="Self.Product" />
           <EntitySet Name="Tokens" EntityType="Self.Token" />
           <EntitySet Name="Users" EntityType="Self.User" />
           <AssociationSet Name="FK_Tokens_ToUsers" Association="Self.FK_Tokens_ToUsers">
             <End Role="User" EntitySet="Users" />
             <End Role="Tokens" EntitySet="Tokens" />
           </AssociationSet>
+          <EntitySet Name="Products" EntityType="WebApiDbModel.Product" />
         </EntityContainer>
+        <EntityType Name="Product">
+          <Key>
+            <PropertyRef Name="ProductId" />
+          </Key>
+          <Property Name="ProductId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProductName" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="WebApiDbModelStoreContainer" CdmEntityContainer="WebApiDbEntities1">
-          <EntitySetMapping Name="Products">
-            <EntityTypeMapping TypeName="WebApiDbModel.Product">
-              <MappingFragment StoreEntitySet="Products">
-                <ScalarProperty Name="ProductId" ColumnName="ProductId" />
-                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Tokens">
             <EntityTypeMapping TypeName="WebApiDbModel.Token">
               <MappingFragment StoreEntitySet="Tokens">
@@ -138,6 +129,14 @@
                 <ScalarProperty Name="UserName" ColumnName="UserName" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Products">
+            <EntityTypeMapping TypeName="WebApiDbModel.Product">
+              <MappingFragment StoreEntitySet="Product">
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="ProductId" ColumnName="ProductId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
