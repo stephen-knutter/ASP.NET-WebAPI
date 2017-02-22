@@ -29,11 +29,7 @@ namespace DataModel.GenericRepository
             this.Context = context;
             this.DbSet = context.Set<TEntity>();
         }
-
-        public object GetByID(int productId)
-        {
-            throw new NotImplementedException();
-        }
+        
         #endregion
 
         #region Public member methods...
@@ -107,11 +103,6 @@ namespace DataModel.GenericRepository
         public virtual IEnumerable<TEntity> GetMany(Func<TEntity, bool> where)
         {
             return DbSet.Where(where).ToList();
-        }
-
-        public void Update(object product)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

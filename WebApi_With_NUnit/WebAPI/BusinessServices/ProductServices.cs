@@ -35,8 +35,8 @@ namespace BusinessServices
                 var config = new MapperConfiguration(cfg =>
                     cfg.CreateMap<Product, ProductEntity>());
 
-                var mapper = new Mapper(config);
-                ProductEntity productModel = Mapper.Map<ProductEntity>(product);
+                var mapper = config.CreateMapper();
+                ProductEntity productModel = mapper.Map<ProductEntity>(product);
 
                 return productModel;
             }
@@ -55,8 +55,8 @@ namespace BusinessServices
                 var config = new MapperConfiguration(cfg =>
                     cfg.CreateMap<Product, ProductEntity>());
 
-                var mapper = new Mapper(config);
-                List<ProductEntity> productsModel = Mapper.Map<List<ProductEntity>>(products);
+                var mapper = config.CreateMapper();
+                List<ProductEntity> productsModel = mapper.Map<List<ProductEntity>>(products);
                 return productsModel;
             }
             return null;
@@ -98,14 +98,8 @@ namespace BusinessServices
                     var product = _unitOfWork.ProductRepository.GetByID(productId);
                     if (product != null)
                     {
-                        // product.PoductName = productEntity.ProductName
+                        product.ProductName = productEntity.ProductName;
                         
-                        product = new ProductEntity()
-                        {
-                            ProductId = productEntity.ProductId,
-                             ProductName = productEntity.ProductName
-                        };
-                         
                         _unitOfWork.ProductRepository.Update(product);
                         _unitOfWork.Save();
                         scope.Complete();
