@@ -3,38 +3,42 @@ using Microsoft.Practices.Unity;
 using Unity.Mvc4;
 using System.Web.Http;
 using BusinessServices;
-using DataModel.UnitOfWork;
+//using DataModel.UnitOfWork;
+using Resolver;
+
 
 namespace WebAPI
 {
   public static class Bootstrapper
   {
-    public static IUnityContainer Initialise()
-    {
-      var container = BuildUnityContainer();
+      public static void Initialise()
+      {
+          var container = BuildUnityContainer();
 
-      DependencyResolver.SetResolver(new Unity.Mvc4.UnityDependencyResolver(container));
-            GlobalConfiguration.Configuration.DependencyResolver = new Unity.WebApi.UnityDependencyResolver(container);
-      return container;
-    }
+          System.Web.Mvc.DependencyResolver.SetResolver(new UnityDependencyResolver(container));
+          GlobalConfiguration.Configuration.DependencyResolver = new Unity.WebApi.UnityDependencyResolver(container);
+      }
 
-    private static IUnityContainer BuildUnityContainer()
-    {
-      var container = new UnityContainer();
+      private static IUnityContainer BuildUnityContainer()
+      {
+          var container = new UnityContainer();
 
-            // register all your components with the container here
-            // it is NOT necessary to register your controllers
+          // register all your components with the container here
+          // it is NOT necessary to register your controllers
 
-            // e.g. container.RegisterType<ITestService, TestService>();  
-            container.RegisterType<IProductServices, ProductServices>().RegisterType<UnitOfWork>(new HierarchicalLifetimeManager());  
-      RegisterTypes(container);
+          // e.g. container.RegisterType<ITestService, TestService>();  
+          //container.RegisterType<IProductServices, ProductServices>().RegisterType<UnitOfWork>(new HierarchicalLifetimeManager());
 
-      return container;
-    }
+          RegisterTypes(container);
 
-    public static void RegisterTypes(IUnityContainer container)
-    {
-    
-    }
-  }
+          return container;
+      }
+
+      public static void RegisterTypes(IUnityContainer container)
+      {
+            // Component initialization via MEF
+            ComponentLoader.LoadContainer(container, ".\\bin", "WebAPI.dll");
+            ComponentLoader.LoadContainer(container, ".\\bin", "BusinessServices.dll");
+      }
+   }
 }
