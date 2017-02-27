@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using BusinessEntities;
 using BusinessServices;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
@@ -38,6 +39,7 @@ namespace WebAPI.Controllers
         }
 
         // GET api/product/5
+        [ApiAuthenticationFilter(true)]
         public HttpResponseMessage Get(int id)
         {
             var product = _productServices.GetProductById(id);
