@@ -16,7 +16,7 @@
           <Key>
             <PropertyRef Name="TokenId" />
           </Key>
-          <Property Name="TokenId" Type="int" Nullable="false" />
+          <Property Name="TokenId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="UserId" Type="int" Nullable="false" />
           <Property Name="AuthToken" Type="nvarchar(max)" Nullable="false" />
           <Property Name="IssuedOn" Type="datetime" Nullable="false" />

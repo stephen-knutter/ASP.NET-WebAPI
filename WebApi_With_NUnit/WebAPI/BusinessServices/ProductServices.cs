@@ -19,7 +19,6 @@ namespace BusinessServices
         /// </summary>
         public ProductServices(UnitOfWork unitOfWork)
         {
-            //_unitOfWork = new UnitOfWork();
             _unitOfWork = unitOfWork;
         }
 
