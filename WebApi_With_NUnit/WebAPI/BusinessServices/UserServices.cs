@@ -12,12 +12,12 @@ namespace BusinessServices
     /// </summary>
     public class UserServices : IUserServices
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         /// <summary>
         /// Public constructor
         /// </summary>
-        public UserServices(UnitOfWork unitOfWork)
+        public UserServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

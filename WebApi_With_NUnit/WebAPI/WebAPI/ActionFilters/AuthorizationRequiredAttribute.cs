@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http.Controllers;
@@ -21,10 +22,12 @@ namespace WebAPI.ActionFilters
 
             if (actionContext.Request.Headers.Contains(Token))
             {
+
                 var tokenValue = actionContext.Request.Headers.GetValues(Token).First();
+                var validToken = provider.ValidateToken(tokenValue);
 
                 // validate token
-                if (provider != null && !provider.ValidateToken(tokenValue))
+                if (provider != null && !validToken)
                 {
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.Unauthorized)
                     {
@@ -35,7 +38,10 @@ namespace WebAPI.ActionFilters
             }
             else
             {
-                actionContext.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                actionContext.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    ReasonPhrase = "Invalid Token"
+                };
             }
 
             base.OnActionExecuting(actionContext);

@@ -12,13 +12,13 @@ namespace BusinessServices
 {
     public class TokenServices : ITokenServices
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         #region Public constructor
         /// <summary>
         /// Public constructor
         /// </summary>
-        public TokenServices(UnitOfWork unitOfWork)
+        public TokenServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -66,13 +66,16 @@ namespace BusinessServices
         /// <returns></returns>
         public bool ValidateToken(string tokenId)
         {
-            var token = _unitOfWork.TokenRepository.Get(t => t.AuthToken == tokenId && t.ExpiresOn > DateTime.Now);
-            if (token != null && !(DateTime.Now > token.ExpiresOn))
+            var token = _unitOfWork.TokenRepository.Get(t => t.AuthToken == tokenId); // t.ExpiresOn > DateTime.Now
+            if (token != null )
             {
-                token.ExpiresOn = token.ExpiresOn.AddSeconds(
+                if (!(DateTime.Now > token.ExpiresOn))
+                {
+                    token.ExpiresOn = token.ExpiresOn.AddSeconds(
                     Convert.ToDouble(ConfigurationManager.AppSettings["AuthTokenExpiry"]));
-                _unitOfWork.TokenRepository.Update(token);
-                _unitOfWork.Save();
+                    _unitOfWork.TokenRepository.Update(token);
+                    _unitOfWork.Save();
+                }
                 return true;
             }
             return false;
