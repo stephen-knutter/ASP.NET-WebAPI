@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Data.Entity;
 using System.Data.Entity.Validation;
 using DataModel.GenericRepository;
 
@@ -9,7 +10,7 @@ namespace DataModel.UnitOfWork
     /// <summary>
     /// Unit of Work class responsible for DB transactions
     /// </summary>
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IDisposable, IUnitOfWork
     {
         #region Private member variables...
         private WebApiDbEntities1 _context = null;

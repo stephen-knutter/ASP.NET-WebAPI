@@ -11,7 +11,7 @@ using WebAPI.ActionFilters;
 
 namespace WebAPI.Controllers
 {
-    [AuthorizationRequired]
+    //[AuthorizationRequired]
     public class ProductController : ApiController
     {
         private readonly IProductServices _productServices;

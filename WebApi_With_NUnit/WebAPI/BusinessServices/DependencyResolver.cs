@@ -18,6 +18,7 @@ namespace BusinessServices
             registerComponent.RegisterType<IProductServices, ProductServices>();
             registerComponent.RegisterType<IUserServices, UserServices>();
             registerComponent.RegisterType<ITokenServices, TokenServices>();
+            registerComponent.RegisterType<IUnitOfWork, UnitOfWork>();
         }
     }
 }
