@@ -169,7 +169,7 @@ namespace BusinessServices.Tests
         [Test]
         public void UpdateProductTest()
         {
-            var firstProduct = _products.FirstOrDefault();
+            var firstProduct = _products.First();
             firstProduct.ProductName = "Laptop updated";
             var updatedProduct = new ProductEntity() { ProductName = firstProduct.ProductName, ProductId = firstProduct.ProductId };
             _productService.UpdateProduct(firstProduct.ProductId, updatedProduct);

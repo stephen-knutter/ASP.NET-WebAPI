@@ -17,6 +17,7 @@ using System.Web.Http;
 using Newtonsoft.Json;
 using System.Web.Http.Hosting;
 using System.Web.Http.Routing;
+using BusinessEntities;
 
 namespace WebAPI.Tests
 {
@@ -36,7 +37,7 @@ namespace WebAPI.Tests
         private string _token;
         private const string ServiceBaseURL = "http://localhost:64809";
 
-        #region SetUp
+        #region Setup
         [OneTimeSetUp]
         public void Setup()
         {
@@ -54,13 +55,6 @@ namespace WebAPI.Tests
             _client = new HttpClient { BaseAddress = new Uri(ServiceBaseURL) };
             var tokenEntity = _tokenService.GenerateToken(1);
             _token = tokenEntity.AuthToken;
-            _client.DefaultRequestHeaders.Add("Token", _token);
-        }
-
-        [SetUp]
-        public void ReInitializeTest()
-        {
-            _client = new HttpClient { BaseAddress = new Uri(ServiceBaseURL) };
             _client.DefaultRequestHeaders.Add("Token", _token);
         }
 
@@ -82,18 +76,25 @@ namespace WebAPI.Tests
             return tokens;
         }
 
+        [SetUp]
+        public void ReIntializeTest()
+        {
+            _client = new HttpClient { BaseAddress = new Uri(ServiceBaseURL) };
+            _client.DefaultRequestHeaders.Add("Token", _token);
+        }
+
         private GenericRepository<Product> SetUpProductRepository()
         {
-            // Initialise repo
+            // Initialize repo
             var mockRepo = new Mock<GenericRepository<Product>>(MockBehavior.Default, _dbEntities);
 
-            // Setup mocking behavior
+            // Setup mock
             mockRepo.Setup(p => p.GetAll()).Returns(_products);
 
             mockRepo.Setup(p => p.GetByID(It.IsAny<int>()))
                 .Returns(new Func<int, Product>(id => _products.Find(p => p.ProductId.Equals(id))));
 
-            mockRepo.Setup(p => p.Insert((It.IsAny<Product>())))
+            mockRepo.Setup(p => p.Insert(It.IsAny<Product>()))
                 .Callback(new Action<Product>(newProduct =>
                 {
                     dynamic maxProductID = _products.Last().ProductId;
@@ -123,16 +124,16 @@ namespace WebAPI.Tests
 
         private GenericRepository<Token> SetUpTokenRepository()
         {
-            // Initialise repo
+            // Initialize repo
             var mockRepo = new Mock<GenericRepository<Token>>(MockBehavior.Default, _dbEntities);
 
-            // Setup mocking behavior
+            // Setup mock
             mockRepo.Setup(p => p.GetAll()).Returns(_tokens);
 
             mockRepo.Setup(p => p.GetByID(It.IsAny<int>()))
                 .Returns(new Func<int, Token>(id => _tokens.Find(p => p.TokenId.Equals(id))));
 
-            mockRepo.Setup(p => p.Insert((It.IsAny<Token>())))
+            mockRepo.Setup(p => p.Insert(It.IsAny<Token>()))
                 .Callback(new Action<Token>(newToken =>
                 {
                     dynamic maxTokenID = _tokens.Last().TokenId;
@@ -149,9 +150,9 @@ namespace WebAPI.Tests
                 }));
 
             mockRepo.Setup(p => p.Delete(It.IsAny<Token>()))
-                .Callback(new Action<Token>(prod =>
+                .Callback(new Action<Token>(token =>
                 {
-                    var tokenToRemove = _tokens.Find(a => a.TokenId == prod.TokenId);
+                    var tokenToRemove = _tokens.Find(a => a.TokenId == token.TokenId);
 
                     if (tokenToRemove != null)
                         _tokens.Remove(tokenToRemove);
@@ -181,9 +182,77 @@ namespace WebAPI.Tests
             Assert.AreEqual(_response.StatusCode, HttpStatusCode.OK);
             Assert.AreEqual(responseResult.Any(), true);
             var comparer = new ProductComparer();
-            CollectionAssert.AreEqual(
-            responseResult.OrderBy(product => product, comparer),
-            _products.OrderBy(product => product, comparer), comparer);
+            CollectionAssert.AreEqual(responseResult.OrderBy(product => product, comparer), 
+                _products.OrderBy(product => product, comparer), comparer);
+        }
+
+        [Test]
+        public void GetProductByIdTest()
+        {
+            var productController = new ProductController(_productService)
+            {
+                Request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(ServiceBaseURL + "/api/product/1")
+                }
+            };
+            productController.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
+
+            _response = productController.Get(2);
+
+            var responseResult = JsonConvert.DeserializeObject<Product>(_response.Content.ReadAsStringAsync().Result);
+            Assert.AreEqual(_response.StatusCode, HttpStatusCode.OK);
+            AssertObjects.PropertyValuesAreEquals(responseResult, _products.Find(a => a.ProductName.Contains("Mobile")));
+        }
+
+        [Test]
+        public void CreateProductTest()
+        {
+            var productController = new ProductController(_productService)
+            {
+                Request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(ServiceBaseURL + "/api/product")
+                }
+            };
+            productController.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
+
+            var newProduct = new ProductEntity()
+            {
+                ProductName = "Android Phone"
+            };
+
+            var maxProductIDBeforeAdd = _products.Max(a => a.ProductId);
+            newProduct.ProductId = maxProductIDBeforeAdd + 1;
+            productController.Post(newProduct);
+            var addedProduct = new Product() { ProductName = newProduct.ProductName, ProductId = newProduct.ProductId };
+            AssertObjects.PropertyValuesAreEquals(addedProduct, _products.Last());
+        }
+
+        [Test]
+        public void UpdateProductTest()
+        {
+            var productController = new ProductController(_productService)
+            {
+                Request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(ServiceBaseURL + "/api/product")
+                }
+            };
+            productController.Request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
+
+            var firstProduct = _products.First();
+            firstProduct.ProductName = "Laptop updated";
+            var updatedProduct = new ProductEntity()
+            {
+                ProductName = firstProduct.ProductName,
+                ProductId = firstProduct.ProductId
+            };
+            productController.Put(firstProduct.ProductId, updatedProduct);
+            Assert.That(firstProduct.ProductId, Is.EqualTo(1));
         }
         #endregion
 
